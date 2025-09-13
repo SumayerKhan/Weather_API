@@ -3,8 +3,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
-stations = pd.read_csv("E:\Code\Python\weather-api\ \
-                       data-small\stations.txt",skiprows=17)
+stations = pd.read_csv("E:\Code\Python\weather-api\data-small\stations.txt",skiprows=17)
 stations = stations[["STAID","STANAME                                 "]]
 
 @app.route("/")
@@ -15,8 +14,14 @@ def home():
 def data(station,date):
     path = "E:\Code\Python\weather-api\data-small\TG_STAID" + str(station).zfill(6) + ".txt"
     df = pd.read_csv(path,skiprows=20, parse_dates=["    DATE"])
-    temperature = df.loc[df["    DATE"] == date]['   TG'].squeeze() / 10
+    df =  df.loc[df['   TG'] != -9999]
+    target = df.loc[df["    DATE"] == date]['   TG']
+    if target.empty:
+        temperature = None
+    else:
+        temperature = target.squeeze() / 10
     
+
     return {"station" : station,
             "date" : date,
              "temperature": temperature }
