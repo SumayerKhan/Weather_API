@@ -1,10 +1,16 @@
 from flask import Flask,render_template
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+load_dotenv() 
+
+DATA_DIR = os.getenv("DATA_DIR")
 
 app = Flask(__name__)
 
-stations = pd.read_csv("E:\Code\Python\weather-api\data-small\stations.txt",skiprows=17)
-stations = stations[["STAID","STANAME                                 "]]
+stations_path = os.path.join(DATA_DIR, "stations.txt")
+stations = pd.read_csv(stations_path, skiprows=17)
 
 @app.route("/")
 def home():
@@ -12,10 +18,12 @@ def home():
 
 @app.route("/api/v1/<station>/<date>")
 def data(station,date):
-    path = "E:\Code\Python\weather-api\data-small\TG_STAID" + str(station).zfill(6) + ".txt"
+    path = os.path.join(DATA_DIR, f"TG_STAID{int(station):06d}.txt")
+
     df = pd.read_csv(path,skiprows=20, parse_dates=["    DATE"])
     df =  df.loc[df['   TG'] != -9999]
     target = df.loc[df["    DATE"] == date]['   TG']
+    
     if target.empty:
         temperature = None
     else:
