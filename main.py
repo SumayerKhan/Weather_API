@@ -74,6 +74,15 @@ def data(station, date):
         "temperature": temperature
     }
 
+@app.route("/api/v1/<station>")
+def all_data(station):
+    path = os.path.join(DATA_DIR, f"TG_STAID{int(station):06d}.txt")
+    df = pd.read_csv(path, skiprows=20, parse_dates=["    DATE"])
+    df = df.loc[df['   TG'] != -9999]
+
+    result = df.to_dict(orient="records")
+    return result
+
 if __name__ == "__main__":
     # Run the Flask application in debug mode
     app.run(debug=True)
