@@ -83,6 +83,16 @@ def all_data(station):
     result = df.to_dict(orient="records")
     return result
 
+@app.route("/api/v1/annual/<station>/<year>")
+def yearly(station,year):
+    path = os.path.join(DATA_DIR, f"TG_STAID{int(station):06d}.txt")
+    df = pd.read_csv(path, skiprows=20)
+    
+    df["    DATE"] = df["    DATE"].astype(str)
+    result = df[df["    DATE"].str.startswith(str(year))].to_dict(orient="records")
+
+    return result
+
 if __name__ == "__main__":
     # Run the Flask application in debug mode
     app.run(debug=True)
